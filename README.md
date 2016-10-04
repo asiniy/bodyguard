@@ -108,7 +108,7 @@ end
 
 The `Bodyguard.Controller` module contains helper functions designed to provide authorization in controller actions. You should probably import it in `web.ex` so it is available to all controllers.
 
-The user to authorize is retrieved from `conn.assigns[:current_user]`.
+The user to authorize is retrieved from `conn.assigns[:current_user]`. You can [customize it](###Customize user fetching)
 
 * `authorize/3` returns the tuple `{:ok, conn}` on success, and `{:error, :unauthorized}` on failure.
 * `authorize!/3` returns a modified `conn` on success, and will raise `Bodyguard.NotAuthorizedError` on failure. By default, this exception will cause Plug to return HTTP status code 403 Forbidden.
@@ -268,6 +268,16 @@ end
 What if you have a Phoenix controller that doesn't correspond to one particular resource? Or, maybe you just want to customize how that controller's actions are locked down.
 
 Try creating a policy for the controller itself. `MyApp.FooController.Policy` is completely acceptable.
+
+### Customize user fetching
+
+You can customize `current_user` by specifying the key as atom (or list of atoms) in application:
+
+```elixir
+# config.exs
+config :bodyguard, :current_user, [:current_user, :current_token]
+# Bodyguard will get_in(conn.assigns, [:current_user, :current_token]) in this case
+```
 
 ## Not What You're Looking For?
 
