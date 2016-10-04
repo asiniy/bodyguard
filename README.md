@@ -68,7 +68,7 @@ defmodule Post.Policy do
   def can?(%User{role: :admin}, _action, _post), do: true
 
   # Regular users can modify their own posts
-  def can?(%User{id: user_id, role: :user}, _action, %Post{user_id: post_user_id}) 
+  def can?(%User{id: user_id, role: :user}, _action, %Post{user_id: post_user_id})
     when user_id == post_user_id, do: true
 
   # Other users (including guest user, nil) can only index and view posts
@@ -91,15 +91,15 @@ defmodule Post.Policy
   # ...
 
   # Admin sees all posts
-  def scope(%User{role: :admin}, :index, _opts), 
+  def scope(%User{role: :admin}, :index, _opts),
     do: Ecto.Query.from(Post)
 
   # User sees their posts only
-  def scope(%User{role: :user, id: id}, :index, _opts), 
+  def scope(%User{role: :user, id: id}, :index, _opts),
     do: Ecto.Query.where(Post, user_id: ^id)
 
   # Guest sees published posts only
-  def scope(nil, :index, _opts), 
+  def scope(nil, :index, _opts),
     do: Ecto.Query.where(Post, published: true)
 end
 ```
@@ -268,6 +268,16 @@ end
 What if you have a Phoenix controller that doesn't correspond to one particular resource? Or, maybe you just want to customize how that controller's actions are locked down.
 
 Try creating a policy for the controller itself. `MyApp.FooController.Policy` is completely acceptable.
+
+### Customize user fetching
+
+You can customize `current_user` by specifying the key as atom or function in application:
+
+```elixir
+# config.exs
+config :bodyguard, :current_user, :current_token # It will use `conn.assigns[:current_token]` for authorization
+config :bodyguard, :current_user, fn(conn) -> Enum.random([true, false]) end # Let make user furious, `true` or `false` will use for authorization here
+```
 
 ## Not What You're Looking For?
 
